@@ -2,7 +2,6 @@ package net.benisjavashop.springbootrestapi.controller;
 
 import net.benisjavashop.springbootrestapi.bean.Student;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class StudentController {
 
    // http://localhost:8080/get-students
     @GetMapping("students")
-    public ResponseEntity getStudents() {
+    public ResponseEntity<List<Student>> getStudents() {
         List<Student> students = new ArrayList<>();
 
         students.add(new Student(1, "alex", "Jones"));
@@ -36,7 +35,7 @@ public class StudentController {
         students.add(new Student(3, "Tom", "Cruz"));
         students.add(new Student(4, "Eli'ante", "Smith"));
         students.add(new Student(5, "Steve", "Wozniak"));
-        return ResponseEntity.ok().header("student-body","\fg").body(students);
+        return ResponseEntity.ok().body(students);
 
     }
 
@@ -44,47 +43,49 @@ public class StudentController {
     // {id} - URL template variable
     // http://localhost:8080/students/1/Umesh/Tony
 @GetMapping("students/{id}/{first-name}/{last-name}")
-    public Student studentPathVariable(@PathVariable("id") int studentId,
+    public ResponseEntity<Student> studentPathVariable(@PathVariable("id") int studentId,
                                       @PathVariable("firstName")  String firstName,
                                       @PathVariable("lastName") String lastName){
-        return new Student(1,"Umesh","Tony");
+        Student student = new Student(studentId, firstName, lastName);
+        return ResponseEntity.ok().body(student);
     }
 
     // Spring boot REST API with Request Param
     //http://localhost:8080/students/query?id=3&firstName=Tim&lastName=Tebow
     @GetMapping("students/query")
-    public Student studentRequestVariable(@RequestParam("id") int id,
+    public ResponseEntity<Student> studentRequestVariable(@RequestParam("id") int id,
                                           @RequestParam("firstName") String firstName,
                                           @RequestParam("lastName") String lastName){
-        return new Student(id, firstName, lastName);
+        Student student = new Student(id, firstName, lastName);
+        return ResponseEntity.ok().body(student);
     }
 
     // Spring boot REST API that handles HTTP Post request : create new resource
     // @PostMapping & @RequestBody
     //http://localhost:8080/students/create
     @PostMapping("students/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Student createStudent(@RequestBody Student student){
+//  @ResponseStatus(HttpStatus.CREATED) 
+    public ResponseEntity<Student> createStudent(@RequestBody Student student){
         System.out.println(student.getId());
         System.out.println(student.getFirstName());
         System.out.println(student.getLastName());
-        return student;
+        return new ResponseEntity<> (student, HttpStatus.CREATED); 
     }
 
     // Spring boot REST API that handles PUT request : updates existing resource
     //http://localhost:8080/student/1/update
     @PutMapping("students/{id}/update")
-    public Student updateStudent(@RequestBody Student student , @PathVariable("id") int studentId){
+    public ResponseEntity<Student> updateStudent(@RequestBody Student student , @PathVariable("id") int studentId){
         System.out.println(student.getFirstName());
         System.out.println(student.getLastName());
-        return student;
+        return ResponseEntity.ok(student);
     }
 
     // Spring boot REST API that handles DELETE request : delete existing resource
     //http://localhost:8080/student/1/delete
     @DeleteMapping("students/{id}/delete")
-    public String deleteStudent(@PathVariable("id") int studentId){
+    public ResponseEntity<String> deleteStudent(@PathVariable("id") int studentId){
         System.out.println(studentId);
-        return "student deleted successfully";
+        return ResponseEntity.ok("student deleted successfully");
     }
 }
